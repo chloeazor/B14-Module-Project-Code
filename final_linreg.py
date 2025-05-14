@@ -5,10 +5,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import sys
 sys.path.append('/files/Chloe')
-
 import help_functions as hf
 hf.install_packages()
-
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split, KFold
 from sklearn.decomposition import PCA
@@ -115,6 +113,9 @@ X_test_final_pca = pca_full.transform(X_test_final_scaled)
 
 print("STEP 3: Train and Test Sets Transformed Using Best PCA Components.")
 
+# %% STEP 4: Hyperparameter search
+# Linear Regression has no hyperparameters to search
+
 # %% STEP 5: Train Final Model on Full Train+Val Set
 final_model = LinearRegression()
 final_model.fit(X_trainval_pca, y_trainval)
@@ -165,24 +166,16 @@ plt.title('Predicted vs. Actual Values')
 plt.grid()
 plt.show()
 
-# %%
-print("NumPy version:", np.__version__)
-print("Pandas version:", pd.__version__)
-#print("Scikit-learn version:", sklearn.__version__)
-print("XGBoost version:", xgb.__version__)
-print("Matplotlib version:", matplotlib.__version__)
-print("Seaborn version:", sns.__version__)
-# %%
+# %% Print the versions of all libraries used
 import numpy as np
 import pandas as pd
 import sklearn
 import xgboost as xgb
 import matplotlib
 import seaborn as sns
-
 import sys
-print("Python version:", sys.version)
 
+print("Python version:", sys.version)
 print("NumPy version:", np.__version__)
 print("Pandas version:", pd.__version__)
 print("Scikit-learn version:", sklearn.__version__)
@@ -190,42 +183,8 @@ print("XGBoost version:", xgb.__version__)
 print("Matplotlib version:", matplotlib.__version__)
 print("Seaborn version:", sns.__version__)
 
-# %%
 # %% Step 11: Statistical Significance Testing via Permutation Test
-'''
-your old code:
-
-n_permutations = 1000  # Number of random models
-random_mse_list = []
-
-for _ in range(n_permutations):
-    y_random_pred = np.random.permutation(y_test_final)  # Random shuffle
-    mse_random = mean_squared_error(y_test_final, y_random_pred)
-    random_mse_list.append(mse_random)
-
-random_mse_array = np.array(random_mse_list)
-
-# Calculate p-value: How often did random model perform as well or better?
-p_value = np.mean(random_mse_array <= mse_test)
-
-print(f"\n📊 Permutation Test Results:")
-print(f"Actual Model MSE on Test Set: {mse_test:.4f}")
-print(f"Mean Random Model MSE: {random_mse_array.mean():.4f}")
-print(f"P-value: {p_value:.4f}")
-
-# Plot the distribution of random model performances
-plt.figure(figsize=(8, 5))
-sns.histplot(random_mse_array, bins=30, kde=True, color='skyblue')
-plt.axvline(mse_test, color='red', linestyle='--', label=f'Actual Model MSE ({mse_test:.4f})')
-plt.xlabel('MSE')
-plt.ylabel('Frequency')
-plt.title('Permutation Test: Distribution of Random Model MSEs')
-plt.legend()
-plt.grid()
-plt.show()
-'''
-#New Corrected permutation testing: 
-
+ 
 n_permutations = 1000          # Number of shuffled worlds to sample
 perm_mse_list   = []   # Re-fit the entire preprocessing + model pipeline on permuted data
     
@@ -271,37 +230,7 @@ print(f"P-value:                     {p_value:.4f}")
 
 
 # %% Step 12: Plot Random MSE Distribution with 95% Confidence Interval
-'''
-old plot
-import scipy.stats as stats
 
-# Calculate 95% confidence interval for random MSEs
-ci_low, ci_high = np.percentile(random_mse_array, [2.5, 97.5])
-
-plt.figure(figsize=(10, 6))
-sns.histplot(random_mse_array, bins=30, kde=True, color='skyblue', label='Random Model MSEs')
-plt.axvline(random_mse_array.mean(), color='blue', linestyle='-', label=f'Mean Random MSE ({random_mse_array.mean():.4f})')
-plt.axvline(ci_low, color='green', linestyle='--', label=f'2.5% Quantile ({ci_low:.4f})')
-plt.axvline(ci_high, color='green', linestyle='--', label=f'97.5% Quantile ({ci_high:.4f})')
-plt.axvline(mse_test, color='red', linestyle='-', linewidth=2.5, label=f'Actual Model MSE ({mse_test:.4f})')
-
-plt.fill_betweenx(y=[0, plt.gca().get_ylim()[1]], x1=ci_low, x2=ci_high, color='green', alpha=0.1)
-
-plt.xlabel('Mean Squared Error (MSE)')
-plt.ylabel('Frequency')
-plt.title('Permutation Test: Random Model MSEs vs Actual Model MSE')
-plt.legend()
-plt.grid()
-plt.show()
-
-# Print the key statistics clearly
-print("\n📊 Permutation Test Summary:")
-print(f"Actual Model MSE (on Test Set): {mse_test:.4f}")
-print(f"Mean Random Model MSE: {random_mse_array.mean():.4f}")
-print(f"P-value (Model vs Random): {p_value:.4f}")
-print(f"95% Confidence Interval of Random Model MSEs: [{ci_low:.4f}, {ci_high:.4f}]")
-'''
-# new plot
 ci_low, ci_high = np.percentile(perm_mse_array, [2.5, 97.5])
 
 plt.figure(figsize=(10, 6))
@@ -324,6 +253,3 @@ plt.title('Permutation Test: Null-model MSEs vs. Actual Model MSE')
 plt.legend()
 plt.grid()
 plt.show()
-
-
-# %%
